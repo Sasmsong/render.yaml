@@ -16,7 +16,7 @@ services:
           property: connectionString
 
   - type: worker
-    name: c2p-worker
+    name: c2p-tomer        nique
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: celery -A tasks worker --loglevel=info --concurrency=1
@@ -27,12 +27,13 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
+          type: redis
+          name: c2p-redis
+          property: connectionString
+
   - type: redis
-    name: c2p-redis
+    name: c2p-redis         # ← keep this exact name only once
     ipAllowList: []
-    
-  - type: redis
-    name: c2p-redis
 
 databases:
   - name: c2p-db
