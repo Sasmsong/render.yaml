@@ -1,4 +1,3 @@
-# This file tells Render exactly what to run
 services:
   - type: web
     name: c2p-api
@@ -6,18 +5,36 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: c2p-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: c2p-redis
+          property: connectionString
+
   - type: worker
     name: c2p-worker
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: celery -A tasks worker --loglevel=info --concurrency=1
     envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: c2p-db
+          property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
           name: c2p-redis
+          property: connectionString
+
   - type: redis
     name: c2p-redis
-    ipAllowList: []
+
+databases:
+  - name: c2p-db
+    databaseName: c2p
+    user: c2p
